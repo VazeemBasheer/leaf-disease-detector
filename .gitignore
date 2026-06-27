@@ -17,3 +17,10 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# ignore raw datasets
+data/raw/
+data/processed/
+
+# Models
+models/
