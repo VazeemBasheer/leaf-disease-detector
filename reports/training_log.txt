@@ -1,0 +1,94 @@
+Leaf Disease CNN Training Log
+==================================================
+
+Training Stopped At : Epoch 24
+Best Epoch          : 20
+Best Validation Loss: 0.025405
+Best Validation Acc : 99.20%
+
+Epoch-wise Loss
+----------------------------------------
+Epoch 01 | Train: 1.2012 | Val: 0.6600
+Epoch 02 | Train: 0.6207 | Val: 0.4810
+Epoch 03 | Train: 0.4238 | Val: 0.3376
+Epoch 04 | Train: 0.3208 | Val: 0.1728
+Epoch 05 | Train: 0.2527 | Val: 0.1350
+Epoch 06 | Train: 0.2088 | Val: 0.1526
+Epoch 07 | Train: 0.1840 | Val: 0.1532
+Epoch 08 | Train: 0.1644 | Val: 0.0860
+Epoch 09 | Train: 0.1393 | Val: 0.0687
+Epoch 10 | Train: 0.1257 | Val: 0.0730
+Epoch 11 | Train: 0.1176 | Val: 0.0669
+Epoch 12 | Train: 0.1038 | Val: 0.0621
+Epoch 13 | Train: 0.0929 | Val: 0.0894
+Epoch 14 | Train: 0.0834 | Val: 0.0567
+Epoch 15 | Train: 0.0777 | Val: 0.0812
+Epoch 16 | Train: 0.0771 | Val: 0.0524
+Epoch 17 | Train: 0.0672 | Val: 0.0501
+Epoch 18 | Train: 0.0631 | Val: 0.0283
+Epoch 19 | Train: 0.0630 | Val: 0.0751
+Epoch 20 | Train: 0.0646 | Val: 0.0254
+Epoch 21 | Train: 0.0522 | Val: 0.0283
+Epoch 22 | Train: 0.0544 | Val: 0.0316
+Epoch 23 | Train: 0.0488 | Val: 0.0285
+Epoch 24 | Train: 0.2101 | Val: 0.0564
+
+==================================================
+Mode: DAY7 Training Started at 2026-07-04 20:58:58.271759
+Parameters: LR=0.001, BS=32, Epochs=30, Patience=3
+==================================================
+Epoch 001 | Train Loss: 0.5926 | Val Loss: 0.5142 | Val Acc: 0.7711
+Epoch 002 | Train Loss: 0.4853 | Val Loss: 0.3649 | Val Acc: 0.8496
+Epoch 003 | Train Loss: 0.3526 | Val Loss: 0.2983 | Val Acc: 0.8870
+Epoch 004 | Train Loss: 0.2714 | Val Loss: 0.1839 | Val Acc: 0.9345
+Epoch 005 | Train Loss: 0.2005 | Val Loss: 0.1708 | Val Acc: 0.9288
+Epoch 006 | Train Loss: 0.1531 | Val Loss: 0.2246 | Val Acc: 0.9154
+Epoch 007 | Train Loss: 0.1210 | Val Loss: 0.0811 | Val Acc: 0.9727
+Epoch 008 | Train Loss: 0.1019 | Val Loss: 0.0494 | Val Acc: 0.9840
+Epoch 009 | Train Loss: 0.0788 | Val Loss: 0.0444 | Val Acc: 0.9845
+Epoch 010 | Train Loss: 0.0763 | Val Loss: 0.0466 | Val Acc: 0.9834
+Epoch 011 | Train Loss: 0.0706 | Val Loss: 0.0547 | Val Acc: 0.9794
+Epoch 012 | Train Loss: 0.0582 | Val Loss: 0.0290 | Val Acc: 0.9903
+Epoch 013 | Train Loss: 0.0545 | Val Loss: 0.0282 | Val Acc: 0.9910
+Epoch 014 | Train Loss: 0.0460 | Val Loss: 0.0302 | Val Acc: 0.9906
+Epoch 015 | Train Loss: 0.0508 | Val Loss: 0.0355 | Val Acc: 0.9887
+Epoch 016 | Train Loss: 0.0454 | Val Loss: 0.0332 | Val Acc: 0.9887
+Early Stopping triggered at Epoch 16
+
+==================================================
+Mode: DAY8 Training Started at 2026-07-04 22:39:24.573149
+Parameters: LR=0.001, BS=32, Epochs=30, Patience=3
+==================================================
+
+==================================================
+Mode: DAY8 Training Started at 2026-07-04 22:39:47.812057
+Parameters: LR=0.001, BS=32, Epochs=30, Patience=3
+==================================================
+Epoch 001 | Train Loss: 0.6729 | Val Loss: 0.9724 | Val Acc: 0.2121
+Epoch 002 | Train Loss: 0.4666 | Val Loss: 0.7358 | Val Acc: 0.3780
+Epoch 003 | Train Loss: 0.3378 | Val Loss: 0.5604 | Val Acc: 0.5531
+Epoch 004 | Train Loss: 0.2478 | Val Loss: 0.2739 | Val Acc: 0.8345
+Epoch 005 | Train Loss: 0.1760 | Val Loss: 0.2101 | Val Acc: 0.8454
+Epoch 006 | Train Loss: 0.1284 | Val Loss: 0.1629 | Val Acc: 0.8816
+Epoch 007 | Train Loss: 0.0963 | Val Loss: 0.1113 | Val Acc: 0.9494
+Epoch 008 | Train Loss: 0.0840 | Val Loss: 0.2025 | Val Acc: 0.8776
+Epoch 009 | Train Loss: 0.0685 | Val Loss: 0.0536 | Val Acc: 0.9828
+
+==================================================
+Mode: DAY8 Training Started at 2026-07-04 22:55:18.673572
+Parameters: LR=0.001, BS=32, Epochs=30, Patience=3
+==================================================
+Epoch 009 | Train Loss: 0.0705 | Val Loss: 0.0864 | Val Acc: 0.9618
+Epoch 010 | Train Loss: 0.0614 | Val Loss: 0.0929 | Val Acc: 0.9435
+Epoch 011 | Train Loss: 0.0606 | Val Loss: 0.0520 | Val Acc: 0.9752
+Epoch 012 | Train Loss: 0.0461 | Val Loss: 0.0376 | Val Acc: 0.9880
+Epoch 013 | Train Loss: 0.0430 | Val Loss: 0.0661 | Val Acc: 0.9628
+Epoch 014 | Train Loss: 0.0424 | Val Loss: 0.1075 | Val Acc: 0.9276
+Epoch 015 | Train Loss: 0.0372 | Val Loss: 0.0671 | Val Acc: 0.9593
+Early Stopping triggered at Epoch 15
+
+---------------- TRAINING SUMMARY ----------------
+Best Validation Loss     : 0.037598
+Best Validation Accuracy : 98.80%
+Best Epoch               : 12
+--------------------------------------------------

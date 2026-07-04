@@ -1,36 +1,53 @@
 from pathlib import Path
 from collections import Counter
+import csv
+
 from PIL import Image
 import matplotlib.pyplot as plt
 
 import torch
-from torch.utils.data import Dataset, DataLoader, random_split
-from torchvision import transforms
+from torch.utils.data import (
+    Dataset,
+    DataLoader,
+    WeightedRandomSampler,
+    Subset
+)
 
-# ----------------------------------------
+from src.transforms import (
+    train_transform,
+    val_transform,
+)
+
+# ==========================================================
 # Configuration
-# ----------------------------------------
+# ==========================================================
 
 DATASET_ROOT = Path("data/processed")
+
+REPORT_DIR = Path("reports")
+REPORT_DIR.mkdir(exist_ok=True)
+
+IMAGE_EXTENSIONS = (
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".JPG",
+    ".JPEG",
+    ".PNG",
+)
 
 IMAGE_SIZE = 224
 BATCH_SIZE = 32
 NUM_WORKERS = 0      # Windows
-VAL_SPLIT = 0.2
+VAL_SPLIT = 0.20
+RANDOM_SEED = 42
 
-transform = transforms.Compose([
-    transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
-    transforms.ToTensor(),
-    transforms.Normalize(
-        mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225]
-    )
-])
+torch.manual_seed(RANDOM_SEED)
 
-
-# ----------------------------------------
+# ==========================================================
 # Dataset
-# ----------------------------------------
+# ==========================================================
+
 
 class LeafDiseaseDataset(Dataset):
 
@@ -43,92 +60,231 @@ class LeafDiseaseDataset(Dataset):
         self.classes = []
         self.class_to_idx = {}
 
-        # Find disease folders recursively
-        class_dirs = sorted([
-            d for d in self.root.rglob("*")
-            if d.is_dir() and any(d.glob("*.JPG"))
-               or any(d.glob("*.jpg"))
-               or any(d.glob("*.png"))
-               or any(d.glob("*.jpeg"))
-        ])
+        class_dirs = sorted(
+            [
+                d
+                for d in self.root.iterdir()
+                if d.is_dir()
+            ]
+        )
 
-        for idx, class_dir in enumerate(class_dirs):
+        for class_index, class_dir in enumerate(class_dirs):
 
-            class_name = class_dir.name
+            self.classes.append(class_dir.name)
 
-            self.classes.append(class_name)
-            self.class_to_idx[class_name] = idx
+            self.class_to_idx[class_dir.name] = class_index
 
-            for ext in ("*.jpg", "*.JPG", "*.jpeg", "*.png"):
+            for image_path in class_dir.rglob("*"):
 
-                for img_path in class_dir.glob(ext):
+                if image_path.suffix not in IMAGE_EXTENSIONS:
+                    continue
 
-                    try:
-                        Image.open(img_path).verify()
-                        self.samples.append((img_path, idx))
-                    except Exception:
-                        print(f"Broken image skipped: {img_path}")
+                try:
+
+                    Image.open(image_path).verify()
+
+                    self.samples.append(
+                        (
+                            image_path,
+                            class_index
+                        )
+                    )
+
+                except Exception:
+
+                    print(
+                        f"Broken image skipped: {image_path}"
+                    )
 
     def __len__(self):
+
         return len(self.samples)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, index):
 
-        path, label = self.samples[idx]
+        image_path, label = self.samples[index]
 
-        image = Image.open(path).convert("RGB")
+        image = Image.open(
+            image_path
+        ).convert("RGB")
 
         if self.transform:
+
             image = self.transform(image)
 
         return image, label
 
 
-# ----------------------------------------
-# Create dataset
-# ----------------------------------------
+# ==========================================================
+# Full Dataset (No Transform)
+# ==========================================================
 
-dataset = LeafDiseaseDataset(DATASET_ROOT, transform)
-
-print(f"\nTotal Images : {len(dataset)}")
-print(f"Total Classes: {len(dataset.classes)}\n")
-
-# ----------------------------------------
-# Class distribution
-# ----------------------------------------
-
-counts = Counter()
-
-for _, label in dataset.samples:
-    counts[label] += 1
-
-print("Class Distribution")
-print("-" * 40)
-
-for class_name, idx in dataset.class_to_idx.items():
-    print(f"{class_name:45} {counts[idx]}")
-
-# ----------------------------------------
-# Train / Validation Split
-# ----------------------------------------
-
-train_size = int((1 - VAL_SPLIT) * len(dataset))
-val_size = len(dataset) - train_size
-
-train_dataset, val_dataset = random_split(
-    dataset,
-    [train_size, val_size],
-    generator=torch.Generator().manual_seed(42)
+full_dataset = LeafDiseaseDataset(
+    DATASET_ROOT,
+    transform=None
 )
+
+print(f"\nTotal Images : {len(full_dataset)}")
+print(f"Total Classes: {len(full_dataset.classes)}")
+# ==========================================================
+# Reproducible Train / Validation Split
+# ==========================================================
+
+total_images = len(full_dataset)
+
+indices = torch.randperm(
+    total_images,
+    generator=torch.Generator().manual_seed(RANDOM_SEED)
+).tolist()
+
+split = int(total_images * (1 - VAL_SPLIT))
+
+train_indices = indices[:split]
+val_indices = indices[split:]
+
+# ==========================================================
+# Create Separate Dataset Objects
+# ==========================================================
+
+train_dataset = LeafDiseaseDataset(
+    DATASET_ROOT,
+    transform=train_transform
+)
+
+val_dataset = LeafDiseaseDataset(
+    DATASET_ROOT,
+    transform=val_transform
+)
+
+# ==========================================================
+# Create Independent Subsets
+# ==========================================================
+
+train_dataset = Subset(
+    train_dataset,
+    train_indices
+)
+
+val_dataset = Subset(
+    val_dataset,
+    val_indices
+)
+
+print(f"\nTraining Images   : {len(train_dataset)}")
+print(f"Validation Images : {len(val_dataset)}")
+
+# ==========================================================
+# Compute Class Distribution (Training Only)
+# ==========================================================
+
+train_labels = []
+
+for idx in train_indices:
+
+    _, label = full_dataset.samples[idx]
+
+    train_labels.append(label)
+
+class_counts = Counter(train_labels)
+
+print("\nTraining Class Distribution")
+print("-" * 60)
+
+for class_name, class_index in full_dataset.class_to_idx.items():
+
+    print(
+        f"{class_name:45}"
+        f"{class_counts[class_index]}"
+    )
+
+# ==========================================================
+# Compute Inverse Frequency Weights
+# ==========================================================
+
+num_classes = len(full_dataset.classes)
+
+total_train = len(train_labels)
+
+class_weights = {}
+
+for class_index in range(num_classes):
+
+    count = class_counts[class_index]
+
+    class_weights[class_index] = (
+        total_train /
+        (num_classes * count)
+    )
+
+# ==========================================================
+# Export reports/class_balance.csv
+# ==========================================================
+
+csv_path = REPORT_DIR / "class_balance.csv"
+
+with open(csv_path, "w", newline="") as file:
+
+    writer = csv.writer(file)
+
+    writer.writerow(
+        [
+            "Class Index",
+            "Class Name",
+            "Training Images",
+            "Weight"
+        ]
+    )
+
+    for class_name, class_index in full_dataset.class_to_idx.items():
+
+        writer.writerow(
+            [
+                class_index,
+                class_name,
+                class_counts[class_index],
+                round(class_weights[class_index], 6)
+            ]
+        )
+
+print(f"\nClass balance report saved to:\n{csv_path}")
+# ==========================================================
+# Sample Weights for WeightedRandomSampler
+# ==========================================================
+
+sample_weights = []
+
+for index in train_indices:
+
+    _, label = full_dataset.samples[index]
+
+    sample_weights.append(
+        class_weights[label]
+    )
+
+sample_weights = torch.DoubleTensor(sample_weights)
+
+# ==========================================================
+# Weighted Random Sampler
+# ==========================================================
+
+sampler = WeightedRandomSampler(
+    weights=sample_weights,
+    num_samples=len(sample_weights),
+    replacement=True
+)
+
+# ==========================================================
+# DataLoaders
+# ==========================================================
 
 train_loader = DataLoader(
     train_dataset,
     batch_size=BATCH_SIZE,
-    shuffle=True,
+    sampler=sampler,
+    shuffle=False,
     num_workers=NUM_WORKERS,
     pin_memory=True
 )
-
 val_loader = DataLoader(
     val_dataset,
     batch_size=BATCH_SIZE,
@@ -137,32 +293,112 @@ val_loader = DataLoader(
     pin_memory=True
 )
 
-print("\nTrain batches:", len(train_loader))
-print("Validation batches:", len(val_loader))
+# ==========================================================
+# Weighted CrossEntropy Tensor
+# ==========================================================
 
-# ----------------------------------------
-# Verify one batch
-# ----------------------------------------
+class_weight_tensor = torch.tensor(
+    [
+        class_weights[i]
+        for i in range(num_classes)
+    ],
+    dtype=torch.float32
+)
+
+print("\nTrain Batches      :", len(train_loader))
+print("Validation Batches :", len(val_loader))
+
+print("\nWeightedRandomSampler Enabled")
+print("Weighted CrossEntropy Enabled")
+
+# ==========================================================
+# Verify One Batch
+# ==========================================================
 
 images, labels = next(iter(train_loader))
 
 print("\nBatch Shape :", images.shape)
 print("Labels      :", labels[:8])
+# ==========================================================
+# Visualize Augmentations
+# ==========================================================
 
-# Expected:
-# torch.Size([32, 3, 224, 224])
+print("\nGenerating augmentation preview...")
 
-# ----------------------------------------
-# Visualize first image
-# ----------------------------------------
+# Use the first image from the training subset
+sample_image_path, sample_label = train_dataset.dataset.samples[
+    train_dataset.indices[0]
+]
 
-mean = torch.tensor([0.485, 0.456, 0.406]).view(3,1,1)
-std = torch.tensor([0.229, 0.224, 0.225]).view(3,1,1)
+original_image = Image.open(sample_image_path).convert("RGB")
 
-img = images[0] * std + mean
-img = img.clamp(0,1)
+fig, axes = plt.subplots(
+    2,
+    4,
+    figsize=(12, 6)
+)
 
-plt.imshow(img.permute(1,2,0))
-plt.title(dataset.classes[labels[0]])
-plt.axis("off")
-plt.show()
+for ax in axes.flatten():
+
+    augmented = train_transform(original_image)
+
+    # Undo normalization for visualization
+    mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
+
+    augmented = augmented * std + mean
+    augmented = augmented.clamp(0, 1)
+
+    ax.imshow(
+        augmented.permute(1, 2, 0)
+    )
+
+    ax.axis("off")
+
+plt.tight_layout()
+
+augment_path = REPORT_DIR / "augment_samples.png"
+
+plt.savefig(
+    augment_path,
+    dpi=300,
+    bbox_inches="tight"
+)
+
+plt.close()
+
+print(f"Augmentation samples saved to:\n{augment_path}")
+
+# ==========================================================
+# Export Variables
+# ==========================================================
+
+CLASS_NAMES = full_dataset.classes
+
+CLASS_COUNTS = {
+    CLASS_NAMES[i]: class_counts[i]
+    for i in range(num_classes)
+}
+
+CLASS_WEIGHTS = {
+    CLASS_NAMES[i]: class_weights[i]
+    for i in range(num_classes)
+}
+
+NUM_CLASSES = num_classes
+
+# ==========================================================
+# Module Exports
+# ==========================================================
+
+__all__ = [
+    "train_loader",
+    "val_loader",
+    "train_dataset",
+    "val_dataset",
+    "CLASS_NAMES",
+    "CLASS_COUNTS",
+    "CLASS_WEIGHTS",
+    "class_weight_tensor",
+    "NUM_CLASSES",
+]

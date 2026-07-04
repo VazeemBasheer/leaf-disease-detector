@@ -622,3 +622,900 @@ Created:
 
 \- Evaluate model performance on the validation dataset.
 
+# Day 4 – CNN Model Implementation and Forward Pass Verification
+
+
+
+\## Objective
+
+
+
+Implement a custom Convolutional Neural Network (CNN) for plant leaf disease classification, verify its architecture through forward passes, and analyze model parameters before training.
+
+
+
+\---
+
+
+
+\## Tasks Completed
+
+
+
+\### CNN Model Development
+
+
+
+Implemented a custom `LeafDiseaseCNN` by inheriting from `torch.nn.Module`.
+
+
+
+The network consists of:
+
+
+
+\* Conv2D (3 → 32)
+
+\* ReLU
+
+\* MaxPool2D
+
+\* Conv2D (32 → 64)
+
+\* ReLU
+
+\* MaxPool2D
+
+\* Conv2D (64 → 128)
+
+\* ReLU
+
+\* MaxPool2D
+
+\* Conv2D (128 → 256)
+
+\* ReLU
+
+\* Adaptive Average Pooling
+
+\* Flatten
+
+\* Dropout
+
+\* Fully Connected Classification Layer
+
+
+
+\---
+
+
+
+\## Dataset Verification
+
+
+
+Successfully loaded the prepared PlantVillage dataset.
+
+
+
+\### Dataset Statistics
+
+
+
+| Metric             |  Value |
+
+| ------------------ | -----: |
+
+| Total Images       | 47,610 |
+
+| Total Classes      |     16 |
+
+| Training Batches   |  1,191 |
+
+| Validation Batches |    298 |
+
+| Batch Size         |     32 |
+
+
+
+The dataset includes Apple, Pepper, and Tomato leaf images across \*\*16 disease and healthy classes\*\*.
+
+
+
+\---
+
+
+
+\## Forward Pass Verification
+
+
+
+Performed a forward pass using a real batch obtained from the `DataLoader`.
+
+
+
+\### Input Tensor
+
+
+
+```text
+
+torch.Size(\[32, 3, 224, 224])
+
+```
+
+
+
+\### Model Output
+
+
+
+```text
+
+torch.Size(\[32, 4])
+
+```
+
+
+
+The model successfully processed an entire batch without runtime errors, confirming that the network architecture and forward propagation are functioning correctly.
+
+
+
+\---
+
+
+
+\## Output Shape Validation
+
+
+
+Verified that the model produces output tensors with the expected dimensions:
+
+
+
+```python
+
+assert outputs.shape\[0] == images.shape\[0]
+
+assert outputs.shape\[1] == NUM\_CLASSES
+
+```
+
+
+
+The forward-pass verification completed successfully.
+
+
+
+\---
+
+
+
+\## Model Architecture
+
+
+
+The implemented CNN consists of four convolutional blocks followed by a lightweight classifier head.
+
+
+
+Key architectural features include:
+
+
+
+\* Four convolution layers for hierarchical feature extraction.
+
+\* ReLU activation after every convolution.
+
+\* Max pooling for spatial downsampling.
+
+\* Adaptive Average Pooling to reduce feature maps to a fixed size.
+
+\* Dropout for regularization.
+
+\* Fully connected output layer for disease classification.
+
+
+
+The architecture was exported to:
+
+
+
+```text
+
+models/architecture.txt
+
+```
+
+
+
+\---
+
+
+
+\## Learning Outcomes
+
+
+
+\* Implemented a custom CNN using `torch.nn.Module`.
+
+\* Understood the role of the `forward()` function in PyTorch.
+
+\* Verified tensor flow through every layer using a forward pass.
+
+\* Successfully connected the custom dataset and DataLoader to the CNN.
+
+\* Validated batch input and output dimensions.
+
+\* Learned the importance of matching the classifier output dimension with the total number of dataset classes.
+
+
+
+\---
+
+
+
+\## Next Steps
+
+
+
+\* Update the classifier output to match all dataset classes (\*\*16 classes\*\*).
+
+\* Define the loss function (`CrossEntropyLoss`) and optimizer (`Adam`).
+
+\* Implement the training and validation loops.
+
+\* Monitor training and validation accuracy across epochs.
+
+\* Save the best-performing model for inference.
+
+
+# Day 5 – CNN Training Loop and Model Checkpointing
+
+
+
+\## Objective
+
+
+
+Implement the complete training pipeline for the custom CNN using PyTorch. Train the model on the PlantVillage dataset using `CrossEntropyLoss` and the Adam optimizer, verify successful training, and save the trained model checkpoint.
+
+
+
+\---
+
+
+
+\## Tasks Completed
+
+
+
+\### Model Training Setup
+
+
+
+\- Configured reproducible training using `torch.manual\_seed(42)`.
+
+\- Enabled automatic device selection (CPU/GPU).
+
+\- Verified CUDA availability and GPU information (when available).
+
+\- Moved both the model and training batches to the selected device.
+
+
+
+\### Loss Function and Optimizer
+
+
+
+Configured the training components:
+
+
+
+\- \*\*Loss Function:\*\* `CrossEntropyLoss`
+
+\- \*\*Optimizer:\*\* `Adam`
+
+\- \*\*Learning Rate:\*\* `1e-3`
+
+
+
+These are suitable defaults for multi-class image classification.
+
+
+
+\### Training Loop
+
+
+
+Implemented a reusable `train\_one\_epoch()` function that performs:
+
+
+
+\- Forward propagation
+
+\- Loss computation
+
+\- Backpropagation
+
+\- Gradient update using Adam
+
+\- Running loss calculation
+
+\- Progress visualization using `tqdm`
+
+
+
+The training loop was executed for \*\*5 epochs\*\*.
+
+
+
+\### Device Management
+
+
+
+The training pipeline automatically supports both CPU and GPU execution.
+
+
+
+Features include:
+
+
+
+\- Automatic CUDA detection
+
+\- Model transferred to GPU when available
+
+\- Images and labels transferred to the same device
+
+\- GPU memory usage logging after each epoch
+
+
+
+\### Training Stability
+
+
+
+Added safeguards to improve training reliability:
+
+
+
+\- Fixed random seed for reproducibility
+
+\- NaN loss detection
+
+\- Running loss monitoring throughout training
+
+
+
+\### Model Checkpoint
+
+
+
+Successfully saved the trained model after training.
+
+
+
+Checkpoint location:
+
+
+
+```text
+
+models/leaf\_cnn\_epoch5.pth
+
+```
+
+
+
+Verified the checkpoint by loading it using:
+
+
+
+```python
+
+load\_state\_dict()
+
+```
+
+
+
+ensuring the saved model can be restored for future inference or continued training.
+
+
+
+\---
+
+
+
+\## Deliverables
+
+
+
+Completed the following project files:
+
+
+
+\- `src/train.py`
+
+\- `models/leaf\_cnn\_epoch5.pth`
+
+\- Training loss logs using `tqdm`
+
+\- Reloadable model checkpoint
+
+
+
+\---
+
+
+
+\## Learning Outcomes
+
+
+
+\- Understood the complete PyTorch training workflow.
+
+\- Implemented forward and backward propagation.
+
+\- Learned how `CrossEntropyLoss` is used for multi-class classification.
+
+\- Optimized model parameters using the Adam optimizer.
+
+\- Managed device placement for CPU and GPU training.
+
+\- Logged training progress using `tqdm`.
+
+\- Saved and reloaded model checkpoints for reproducible experiments.
+
+\- Applied reproducibility techniques using random seeds.
+
+
+
+\---
+
+
+
+\## Next Steps
+
+
+
+\- Implement a validation loop.
+
+\- Track validation loss and classification accuracy.
+
+\- Plot training and validation loss curves.
+
+\- Save the best-performing model based on validation performance.
+
+\- Evaluate the model using confusion matrix and per-class metrics.
+
+# Day 6 – Model Training, Validation & Early Stopping
+
+## Objective
+
+Implement a complete training pipeline for the Plant Leaf Disease Classification CNN using PyTorch. The model is trained on the processed dataset, validated after every epoch, and optimized using early stopping to prevent overfitting.
+
+---
+
+## Learning Outcomes
+
+By the end of Day 6, the following concepts were implemented and understood:
+
+* Training a CNN using PyTorch
+* Forward propagation
+* Backpropagation
+* CrossEntropyLoss for multi-class classification
+* Adam optimizer
+* GPU (CUDA) training
+* Validation loop
+* Accuracy calculation
+* Early stopping
+* Best model checkpointing
+* Resume training from checkpoint
+* Training log generation
+* Loss curve visualization
+
+---
+
+## Model
+
+**Architecture**
+
+* Conv2D (3 → 32)
+* ReLU
+* MaxPool
+* Conv2D (32 → 64)
+* ReLU
+* MaxPool
+* Conv2D (64 → 128)
+* ReLU
+* MaxPool
+* Conv2D (128 → 256)
+* ReLU
+* Adaptive Average Pooling
+* Dropout (0.3)
+* Fully Connected Layer
+
+Output:
+
+```text
+Batch × 16 Classes
+```
+
+---
+
+## Dataset
+
+* Total Images: **47,610**
+* Number of Classes: **16**
+* Image Size: **224 × 224**
+* Batch Size: **32**
+
+Dataset Split
+
+* Training: 80%
+* Validation: 20%
+
+---
+
+## Training Configuration
+
+| Parameter     |                       Value |
+| ------------- | --------------------------: |
+| Optimizer     |                        Adam |
+| Learning Rate |                       0.001 |
+| Loss Function |            CrossEntropyLoss |
+| Epochs        | 50 (Early Stopping Enabled) |
+| Batch Size    |                          32 |
+| Device        |                  CUDA / CPU |
+| Random Seed   |                          42 |
+
+---
+
+## Features Implemented
+
+### Training Loop
+
+* Model switched to training mode using `model.train()`
+* Images transferred to GPU
+* Forward propagation
+* Loss computation
+* Backpropagation
+* Optimizer update
+* Running loss calculation
+
+---
+
+### Validation Loop
+
+* Model switched to evaluation mode using `model.eval()`
+* Gradient computation disabled
+* Validation loss calculated
+* Validation accuracy calculated
+
+---
+
+### Early Stopping
+
+* Patience = 3
+* Stops training if validation loss does not improve
+* Prevents overfitting
+* Restores best model weights
+
+---
+
+### Checkpointing
+
+Implemented:
+
+* Best model checkpoint
+* Latest checkpoint
+* Resume interrupted training automatically
+
+Checkpoint Files
+
+```text
+models/
+├── leaf_cnn_best.pth
+└── latest_checkpoint.pth
+```
+
+---
+
+### GPU Support
+
+The model automatically detects CUDA.
+
+```python
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+```
+
+GPU memory usage is displayed after every epoch.
+
+---
+
+### Training Visualization
+
+Training automatically generates:
+
+```text
+reports/
+├── training_curves.png
+└── training_log.txt
+```
+
+The graph compares:
+
+* Training Loss
+* Validation Loss
+
+---
+
+## Outputs
+
+Generated Files
+
+```text
+models/
+├── leaf_cnn_best.pth
+├── latest_checkpoint.pth
+
+reports/
+├── training_curves.png
+├── training_log.txt
+```
+
+---
+
+## Results
+
+* Validation performed every epoch
+* Early stopping successfully restored the best weights
+* Best model automatically saved
+* Training can resume from interruptions without restarting
+
+---
+
+## Skills Learned
+
+* CNN training pipeline
+* Loss optimization
+* Validation techniques
+* Accuracy measurement
+* GPU acceleration
+* Model checkpointing
+* Early stopping
+* Experiment logging
+* Resume training
+
+# Day 7 – Data Augmentation Pipeline
+
+## Objective
+
+Improve the model's ability to generalize by applying data augmentation only to the training dataset while keeping the validation dataset unchanged. This helps reduce overfitting and improves robustness to variations in real-world images.
+
+---
+
+## Learning Outcomes
+
+Implemented:
+
+* Separate transform pipelines
+* Data augmentation
+* Random image transformations
+* Validation without augmentation
+* Modular preprocessing
+* Augmentation visualization
+* Reproducible transform configuration
+
+---
+
+## Project Structure
+
+```text
+src/
+├── transforms.py
+├── DataLoader.py
+├── model_generator.py
+└── train.py
+```
+
+---
+
+## Train Transform Pipeline
+
+Training images undergo the following preprocessing:
+
+1. Resize to 256 × 256
+2. RandomResizedCrop (224 × 224)
+3. RandomHorizontalFlip (50%)
+4. RandomRotation (±15°)
+5. ColorJitter
+
+   * Brightness
+   * Contrast
+   * Saturation
+6. Convert to Tensor
+7. Normalize using ImageNet statistics
+
+---
+
+## Validation Transform Pipeline
+
+Validation images use deterministic preprocessing:
+
+1. Resize to 224 × 224
+2. Convert to Tensor
+3. Normalize
+
+No augmentation is applied to the validation dataset to ensure fair and stable evaluation.
+
+---
+
+## Why Separate Transforms?
+
+Training augmentation allows the model to learn from varied versions of the same image.
+
+Validation data must remain unchanged so that model performance can be compared consistently across experiments.
+
+---
+
+## Label-Safe Transformations
+
+The following augmentations preserve the disease label:
+
+* Random Horizontal Flip
+* Random Crop
+* Small Rotation (±15°)
+* Brightness Adjustment
+* Contrast Adjustment
+* Saturation Adjustment
+
+These operations change only the image appearance and not the underlying disease category.
+
+---
+
+## Transform Configuration
+
+All transforms are defined in:
+
+```text
+src/transforms.py
+```
+
+This makes preprocessing reusable across:
+
+* DataLoader
+* Training
+* Validation
+* Future inference scripts
+
+---
+
+## Dataset Pipeline
+
+```text
+Leaf Images
+      │
+      ▼
+Train Transform
+      │
+      ▼
+Training DataLoader
+      │
+      ▼
+CNN Model
+```
+
+Validation follows a separate preprocessing pipeline without augmentation.
+
+---
+
+## Visualization
+
+Generated Files
+
+```text
+reports/
+├── augment_samples.png
+```
+
+The visualization demonstrates how augmentation creates multiple variations of leaf images while preserving their labels.
+
+---
+
+## Training
+
+The CNN was retrained using the augmented training dataset.
+
+The training pipeline continued to support:
+
+* GPU acceleration
+* Resume from checkpoint
+* Early stopping
+* Validation after every epoch
+
+---
+
+## Benefits of Data Augmentation
+
+* Reduces overfitting
+* Improves generalization
+* Simulates real-world image variations
+* Makes the model more robust
+* Increases dataset diversity without collecting new images
+
+---
+
+## Deliverables
+
+```text
+src/
+├── transforms.py
+
+reports/
+├── augment_samples.png
+
+configs/
+├── transforms.yaml
+```
+
+---
+
+## Skills Learned
+
+* Image preprocessing
+* Data augmentation
+* PyTorch transforms
+* Modular project design
+* Dataset preprocessing
+* Label-safe augmentation
+* CNN generalization techniques
+* Reproducible preprocessing pipelines
+
+---
+
+## Conclusion
+
+Day 7 introduced a reusable and modular data augmentation pipeline. Training images are augmented dynamically during loading, while validation images remain unchanged for reliable evaluation. This approach improves the model's robustness without altering the original dataset and follows best practices used in modern deep learning workflows.
+
+---
+
+# Day 8 – Class Balancing and Performance Comparison
+
+## Objective
+
+Configure a balanced training pipeline to mitigate class imbalance issues in the leaf disease dataset and compare training results against the unbalanced baseline using per-class classification reports and confusion matrices.
+
+---
+
+## Tasks Completed
+
+- **Unified CLI pipeline**: Developed a integrated training switch configuration supporting both standard baseline execution and class balancing sampler controls.
+- **Weighted Sampler & Loss**: Integrated `WeightedRandomSampler` and class-weighted `CrossEntropyLoss` to boost validation focus on minority samples.
+- **Report Validation**: Evaluated and exported comparative recall statistics:
+  - **Minority Recall Lift**: Apple crop recall rose from `0.9796 -> 0.9843`; Pepper recall increased from `0.9817 -> 0.9898`.
+  - Exported validation materials: `reports/recall_day8.csv`, `reports/classification_report_day8.txt`, and `reports/confusion_matrix_day8.csv`.
+
+---
+
+# Day 9 – Transfer Learning & ResNet18 Backbone Initialization
+
+## Objective
+
+Initialize a transfer learning setup using a pre-trained ResNet18 backbone, replace the standard ImageNet classification head, inspect module layers, freeze network weights, and run proof-of-concept inference on sample leaf data.
+
+---
+
+## Tasks Completed
+
+- **Modern Backbone Integration**: Configured model instantiation utilizing `models.ResNet18_Weights.IMAGENET1K_V1` to load pre-trained ImageNet parameters.
+- **UserWarning Inspection**: Coded deprecation warnings check within `src/resnet_demo.py` capturing obsolete `pretrained=True` user notices.
+- **Pretrained Inference Validation**: Ran a forward pass on a normalized target leaf image, obtaining ImageNet prediction category `'bonnet'` (prob: 0.1504), verifying backpropagation-ready input pipelines.
+- **Target Classifier Substitution**: Replaced the fully connected layer (`fc`) with a new trainable 4-class classifier.
+- **Backbone Freezing**: Deactivated gradients for all convolutional blocks. Tracked trainable parameters decrease from `11,689,512` to `2,052` parameters (99.98% reduction).
+- **Layer Mapping & Concept Plan**: Logged 67 architecture layer signatures to `docs/resnet18_layers.txt` and prepared `docs/transfer_learning.md` outlining the Day 10 unfreezing schedule (fine-tuning `layer4`).
+
+

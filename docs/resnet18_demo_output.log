@@ -1,0 +1,33 @@
+
+=== STEP 1: Testing Deprecated API (pretrained=True) ===
+[UserWarning caught]: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+[UserWarning caught]: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=ResNet18_Weights.IMAGENET1K_V1`. You can also use `weights=ResNet18_Weights.DEFAULT` to get the most up-to-date weights.
+
+=== STEP 2: Loading ResNet18 with Weights Enum ===
+Pretrained ResNet18 model loaded successfully.
+
+=== STEP 3: Saving Layer Names to docs/resnet18_layers.txt ===
+Saved 67 layer names to 'docs\resnet18_layers.txt'
+
+=== STEP 4: Running Pretrained Inference on Leaf Image ===
+Successfully loaded and preprocessed leaf image to shape: torch.Size([1, 3, 224, 224])
+Top-1 Predicted ImageNet Category: 'bonnet' with probability: 0.1504
+
+Before Head Replacement:
+--> Total parameters: 11,689,512
+--> Trainable parameters: 11,689,512
+
+=== STEP 5: Freezing Backbone Parameters ===
+
+=== STEP 6: Replacing Classifier Head for Transfer Learning ===
+Classifier head (fc) replaced with Linear(512 -> 4)
+
+After Head Replacement & Freezing:
+--> Total parameters: 11,178,564
+--> Trainable parameters: 2,052 (Only 'fc.weight' and 'fc.bias')
+
+=== STEP 7: Verifying Custom Replaced Head Forward Pass ===
+Output shape of leaf batch through fine-tuned head: torch.Size([1, 4])
+Raw output logits: [0.2399284392595291, -0.2622917890548706, -0.6877529621124268, 0.28707626461982727]
+Verification completed successfully!
+
