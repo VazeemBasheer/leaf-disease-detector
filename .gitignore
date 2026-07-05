@@ -24,3 +24,5 @@ data/processed/
 
 # Models
 models/
+# tensor data
+runs/

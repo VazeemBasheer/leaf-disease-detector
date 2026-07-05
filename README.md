@@ -1518,4 +1518,35 @@ Initialize a transfer learning setup using a pre-trained ResNet18 backbone, repl
 - **Backbone Freezing**: Deactivated gradients for all convolutional blocks. Tracked trainable parameters decrease from `11,689,512` to `2,052` parameters (99.98% reduction).
 - **Layer Mapping & Concept Plan**: Logged 67 architecture layer signatures to `docs/resnet18_layers.txt` and prepared `docs/transfer_learning.md` outlining the Day 10 unfreezing schedule (fine-tuning `layer4`).
 
+---
+
+# Day 10 – Two-Phase ResNet18 Fine-Tuning & Evaluation
+
+## Objective
+
+Fine-tune the pre-trained ResNet18 model using a two-phase transfer learning schedule, save the best weights with metadata, compare the recall and overall accuracy achievements against the custom scratch CNN baseline, and document hardware performance benchmarks for Zelbytes deployment planning.
+
+---
+
+## Tasks Completed
+
+- **Two-Phase Training Script**: Implemented `src/train_resnet.py` featuring a strict phased fine-tuning loop:
+  - **Phase 1 (Epochs 1-3)**: Backbone parameters frozen. Trained only the newly replaced 3-class classification head (`lr = 1e-3`).
+  - **Phase 2 (Epochs 4-6)**: Unfroze the `layer4` residual block. Trained with differential learning rates: `1e-5` for the `layer4` backbone group and `1e-3` for the classification head.
+  - **Auto Mixed Precision (AMP)**: Handled operations in FP16 to maximize RTX GPU hardware performance.
+- **Performance Evaluation**:
+  - **Overall Accuracy Elevation**: Validation accuracy rose from the Scratch CNN baseline of **`98.80%`** (Day 8) to **`99.79%`** (Day 10) — a net improvement of **`+0.99%`**.
+  - **Crop-level Recall Improvements**:
+    - **Apple**: `0.9843 -> 1.0000` (`+0.0157`)
+    - **Pepper**: `0.9898 -> 0.9959` (`+0.0061`)
+    - **Tomato**: `0.9884 -> 0.9978` (`+0.0094`)
+- **Zelbytes GPU vs CPU Benchmarks**:
+  - **GPU Execution Time**: Total training finished in `1745.21 seconds` on an NVIDIA RTX 3050 GPU using AMP (~4.8 minutes/epoch with sequential CPU image decoding).
+  - **CPU Projection**: Training without CUDA acceleration on standard CPUs projection is ~50 minutes/epoch, exceeding 5 hours for 6 epochs.
+- **Deliverables Saved**:
+  - Checkpoint: `models/resnet18_leaf_best.pth` (includes state dict, best epoch, final accuracy, and class names).
+  - Class index mapping: `models/class_names.json`.
+  - Comparative log: `reports/resnet18_vs_scratch_cnn.txt` and `reports/classification_report_resnet.txt`.
+
+
 
