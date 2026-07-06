@@ -1,0 +1,23 @@
+{
+    "predicted_class": "Apple___healthy",
+    "confidence": 0.9999159574508667,
+    "is_diseased": false,
+    "probabilities": {
+        "Apple___Apple_scab": 2.603990004120767e-18,
+        "Apple___Black_rot": 5.478054276863986e-08,
+        "Apple___Cedar_apple_rust": 3.643234289928555e-18,
+        "Apple___healthy": 0.9999159574508667,
+        "Pepper_Bacterial_spot": 6.07211037007005e-09,
+        "Pepper_healthy": 1.6006000578272506e-06,
+        "Tomato___Bacterial_spot": 1.6596805581334945e-13,
+        "Tomato___Early_blight": 5.3915635844781207e-11,
+        "Tomato___healthy": 5.769424506313686e-20,
+        "Tomato___Late_blight": 5.425142080639489e-05,
+        "Tomato___Leaf_Mold": 1.4426048133842073e-09,
+        "Tomato___Septoria_leaf_spot": 1.0045034137817765e-08,
+        "Tomato___Spider_mites Two-spotted_spider_mite": 1.5468142009922303e-05,
+        "Tomato___Target_Spot": 1.2540611351141706e-05,
+        "Tomato___Tomato_mosaic_virus": 4.2510180636760577e-23,
+        "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 1.670970206646416e-08
+    }
+}

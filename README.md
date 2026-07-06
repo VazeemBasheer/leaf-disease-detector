@@ -1571,5 +1571,115 @@ Fine-tune a lightweight MobileNetV2 classifier on the leaf disease dataset to su
   - Checkpoint: `models/mobilenetv2_leaf_best.pth` (checkpoint with metadata).
   - Comparison Report: `reports/model_comparison.md`.
 
+---
+
+# Day 12 – Leaf Disease Model Evaluation, Threshold Sweeping, and CLI Inference
+
+## Objective
+
+Finalize the evaluation of the leaf disease classification model by implementing binary metrics collapse (healthy vs. diseased), sweeping softmax thresholds to optimize decision boundaries matching agronomist SLAs, and creating a production-ready command line interface.
+
+---
+
+## Tasks Completed
+
+- **Custom Binary Collapse Evaluation**:
+  - Implemented `src/evaluate.py` to run predictions of the 16-class Custom CNN model (`leafcnn_20260628_acc_0.992.pth`).
+  - Collapsed the multi-class outputs to healthy (index 3, 5, 8) vs. diseased (all other 13 categories).
+- **Softmax Threshold Optimization**:
+  - Swept softmax thresholds on the aggregated disease probability: $P(\text{diseased}) = 1.0 - \sum P(\text{healthy})$.
+  - Selected a conservative operating threshold of **$\tau = 0.35$** to bias the detector towards high recall (catching early blight and infections).
+  - Expected performance at $\tau = 0.35$ is **Recall: 99.97%** and **Precision: 99.95%**, satisfying the SLA (Recall $\ge 95\%$, Precision $\ge 80\%$).
+  - Exported configs to `models/inference_config.json` and plotted the Precision-Recall curve to `reports/precision_recall_curve.png`.
+- **Inference CLI**:
+  - Implemented `src/predict.py` with support for dynamic architecture detection (ResNet18, MobileNetV2, and LeafDiseaseCNN) and parameter configs.
+  - Implemented standard exit codes on failure (exit code `1` for missing image, `2` for corrupt image).
+  - Saved sample prediction outputs for 3 test images to `reports/prediction_*.json`.
+
+---
+
+## CLI Usage
+
+### Basic Usage with Default Model
+```powershell
+python src/predict.py --image samples/apple_healthy.jpg
+```
+
+### Specifying a Model Checkpoint
+```powershell
+python src/predict.py --image samples/tomato_early_blight.jpg --model models/checkpoints/leafcnn_20260628_acc_0.992.pth
+```
+
+### Example JSON Output
+```json
+{
+    "predicted_class": "Tomato___Early_blight",
+    "confidence": 0.9945833086967468,
+    "is_diseased": true,
+    "probabilities": {
+        "Apple___Apple_scab": 0.0006548874080181122,
+        "Apple___Black_rot": 1.2312440932157353e-35,
+        "Tomato___Early_blight": 0.9945833086967468,
+        "Tomato___healthy": 1.637913565806051e-17
+    }
+}
+```
+
+### Error Handling & Exit Codes
+- **Exit Code 1**: Image path is invalid or missing.
+- **Exit Code 2**: Image file is corrupted or not a valid image format.
+
+---
+
+# Day 13 – Leaf Disease HTTP API Scaffolding (FastAPI)
+
+## Objective
+
+Design and scaffold a production-ready HTTP REST API wrapper for the leaf disease classification service using FastAPI. Implement lifespan context managers, Pydantic schema validation, dependency injection, and environment configuration patterns.
+
+---
+
+## Tasks Completed
+
+- **FastAPI Core Skeleton**:
+  - Developed `app/main.py` configuring metadata, lifespan loaders, and health routes.
+  - Implemented `app/schemas.py` declaring response types for validation support.
+  - Implemented `app/inference.py` for FastAPI dependency injection context resolver.
+- **Reference Refactoring**:
+  - Refactored core modules in `src/inference.py` to support CLI (`predict.py`) and API application boundaries without duplication.
+- **Environment Management**:
+  - Wired configurations (`MODEL_PATH` and `DISEASE_THRESHOLD`) into environment structures via `.env.example`.
+- **Validation**:
+  - Loaded model weights into memory singleton on lifespans and verified health statuses.
+  - Validated API contracts using Swagger UI at `/docs`.
+
+---
+
+## Running the API
+
+### 1. Install Dependencies
+```powershell
+pip install -r requirements-api.txt
+```
+
+### 2. Configure Environment
+Copy `.env.example` to `.env` and adjust paths:
+```ini
+MODEL_PATH=models/resnet18_leaf_best.pth
+DISEASE_THRESHOLD=0.35
+```
+
+### 3. Run Development Server
+```powershell
+uvicorn app.main:app --reload
+```
+
+### 4. Direct Query Validation
+- **Health Check**: `GET http://127.0.0.1:8000/health`
+- **Interactive OpenAPI Documentation**: `GET http://127.0.0.1:8000/docs`
+- **Predict Request**: Send a `POST http://127.0.0.1:8000/predict` using `multipart/form-data` with key `file` referencing the leaf image file.
+
+
+
 
 
