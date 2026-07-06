@@ -118,3 +118,21 @@ Total training time      : 26120.91 seconds
 Best Validation Accuracy : 99.79%
 Best Epoch               : 6
 --------------------------------------------------
+
+==================================================
+ResNet18 Fine-Tuning Started at 2026-07-06 16:20:24.954178
+Parameters: Epochs=6, Phase1=3, LR_head=0.001, LR_backbone=1e-05
+Active Hardware : cuda (NVIDIA GeForce RTX 3050 6GB Laptop GPU)
+==================================================
+Epoch 01 (PHASE 1 ) | Train Loss: 0.2283 | Val Loss: 0.1274 | Val Acc: 0.9265 | Time: 253.43s
+Epoch 02 (PHASE 1 ) | Train Loss: 0.1061 | Val Loss: 0.1088 | Val Acc: 0.9297 | Time: 282.14s
+Epoch 03 (PHASE 1 ) | Train Loss: 0.0886 | Val Loss: 0.0868 | Val Acc: 0.9500 | Time: 265.30s
+Epoch 04 (PHASE 2 ) | Train Loss: 0.0417 | Val Loss: 0.0154 | Val Acc: 0.9924 | Time: 382.41s
+Epoch 05 (PHASE 2 ) | Train Loss: 0.0195 | Val Loss: 0.0212 | Val Acc: 0.9882 | Time: 368.41s
+Epoch 06 (PHASE 2 ) | Train Loss: 0.0127 | Val Loss: 0.0049 | Val Acc: 0.9979 | Time: 358.86s
+
+---------------- TRAINING SUMMARY ----------------
+Total training time      : 1912.86 seconds
+Best Validation Accuracy : 99.79%
+Best Epoch               : 6
+--------------------------------------------------

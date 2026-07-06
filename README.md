@@ -1541,10 +1541,10 @@ Fine-tune the pre-trained ResNet18 model using a two-phase transfer learning sch
     - **Pepper**: `0.9898 -> 0.9959` (`+0.0061`)
     - **Tomato**: `0.9884 -> 0.9978` (`+0.0094`)
 - **Zelbytes GPU vs CPU Benchmarks**:
-  - **GPU Execution Time**: Total training finished in `1745.21 seconds` on an NVIDIA RTX 3050 GPU using AMP (~4.8 minutes/epoch with sequential CPU image decoding).
+  - **GPU Execution Time**: Total training finished in `1912.86 seconds` (~31.88 minutes) on an NVIDIA GeForce RTX 3050 6GB Laptop GPU using AMP (~4.2 minutes/epoch for Phase 1, ~6.2 minutes/epoch for Phase 2).
   - **CPU Projection**: Training without CUDA acceleration on standard CPUs projection is ~50 minutes/epoch, exceeding 5 hours for 6 epochs.
 - **Deliverables Saved**:
-  - Checkpoint: `models/checkpoints/resnet18_leaf_best.pth` (includes state dict, best epoch, final accuracy, and class names).
+  - Checkpoint: `models/resnet18_leaf_best.pth` (includes state dict, best epoch, final validation accuracy, and class list metadata).
   - Class index mapping: `models/class_names.json`.
   - Comparative log: `reports/resnet18_vs_scratch_cnn.txt` and `reports/classification_report_resnet.txt`.
 

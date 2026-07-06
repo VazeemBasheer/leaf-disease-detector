@@ -1,9 +1,9 @@
 ======================================================================
 COMPARATIVE EVALUATION: SCRATCH CNN VS FINE-TUNED RESNET18
 ======================================================================
-Generated on: 2026-07-05 08:58:22.502484
+Generated on: 2026-07-06 16:52:53.903999
 Hardware Used: cuda (NVIDIA GeForce RTX 3050 6GB Laptop GPU)
-Total Training Time: 26120.91 seconds
+Total Training Time: 1912.86 seconds
 
 ----------------------------------------------------------------------
 OVERALL RESULTS COMPARISON
