@@ -1,0 +1,9 @@
+              precision    recall  f1-score   support
+
+       apple     0.9922    0.9984    0.9953       636
+      pepper     0.9722    0.9959    0.9839       491
+      tomato     0.9997    0.9953    0.9975      3635
+
+    accuracy                         0.9958      4762
+   macro avg     0.9880    0.9966    0.9922      4762
+weighted avg     0.9959    0.9958    0.9958      4762

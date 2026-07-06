@@ -1548,5 +1548,28 @@ Fine-tune the pre-trained ResNet18 model using a two-phase transfer learning sch
   - Class index mapping: `models/class_names.json`.
   - Comparative log: `reports/resnet18_vs_scratch_cnn.txt` and `reports/classification_report_resnet.txt`.
 
+---
+
+# Day 11 – Edge Optimization: MobileNetV2 Fine-Tuning & Benchmarking
+
+## Objective
+
+Fine-tune a lightweight MobileNetV2 classifier on the leaf disease dataset to support deployment on resource-constrained polyhouse edge nodes and camera swarms. Profile models on both CPU and GPU to analyze size, latency (ms/image), and dynamic quantization (INT8) trade-offs.
+
+---
+
+## Tasks Completed
+
+- **Phased MobileNetV2 Fine-Tuning**: Configured a two-phase training script (`src/train_mobilenet.py`) utilizing pre-trained `MobileNetV2` weights.
+  - **Phase 1**: Frozen backbone, training the classification head at `lr = 1e-3` for 3 epochs.
+  - **Phase 2**: Unfrozen late features (`features[14:]`) and trained at differential learning rates (`lr_backbone = 1e-5`, `lr_head = 1e-3`) for 3 epochs, converging at **99.58%** validation accuracy.
+- **CPU & GPU Latency Benchmarking**: Implemented `src/benchmark.py` mapping:
+  - **Edge Latency (BS=1 on CPU)**: MobileNetV2 got a **1.5x speedup** (10.54 ms vs 16.32 ms) and **4.9x size compression** (8.74 MB vs 42.72 MB).
+  - **Dynamic Quantization**: Integrated PyTorch dynamic INT8 quantization on `nn.Linear` layers, accelerating CPU latencies further.
+  - **Throughput Latency (BS=32 on GPU)**: ResNet18 leveraged standard convolutions to maximize RTX GPU parallelism, producing a batch time of 35.15 ms vs MobileNetV2's 44.82 ms.
+- **Handoff Deliverables**:
+  - Checkpoint: `models/mobilenetv2_leaf_best.pth` (checkpoint with metadata).
+  - Comparison Report: `reports/model_comparison.md`.
+
 
 

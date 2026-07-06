@@ -136,3 +136,21 @@ Total training time      : 1912.86 seconds
 Best Validation Accuracy : 99.79%
 Best Epoch               : 6
 --------------------------------------------------
+
+==================================================
+MobileNetV2 Fine-Tuning Started at 2026-07-06 17:10:45.574562
+Parameters: Epochs=6, Phase1=3, LR_head=0.001, LR_backbone=1e-05
+Active Hardware : cuda (NVIDIA GeForce RTX 3050 6GB Laptop GPU)
+==================================================
+Epoch 01 (PHASE 1) | Train Loss: 0.1713 | Val Loss: 0.0629 | Val Acc: 0.9738 | Time: 119.10s
+Epoch 02 (PHASE 1) | Train Loss: 0.0867 | Val Loss: 0.0524 | Val Acc: 0.9765 | Time: 108.49s
+Epoch 03 (PHASE 1) | Train Loss: 0.0690 | Val Loss: 0.0509 | Val Acc: 0.9721 | Time: 108.43s
+Epoch 04 (PHASE 2) | Train Loss: 0.0463 | Val Loss: 0.0152 | Val Acc: 0.9952 | Time: 116.23s
+Epoch 05 (PHASE 2) | Train Loss: 0.0245 | Val Loss: 0.0244 | Val Acc: 0.9855 | Time: 114.99s
+Epoch 06 (PHASE 2) | Train Loss: 0.0196 | Val Loss: 0.0113 | Val Acc: 0.9958 | Time: 110.91s
+
+---------------- TRAINING SUMMARY ----------------
+Total training time      : 678.51 seconds
+Best Validation Accuracy : 99.58%
+Best Epoch               : 6
+--------------------------------------------------
