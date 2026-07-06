@@ -430,6 +430,7 @@ def gpu_memory_info(device):
 def main():
     args = parse_args()
     os.makedirs("models", exist_ok=True)
+    os.makedirs("models/checkpoints", exist_ok=True)
     os.makedirs("reports", exist_ok=True)
 
     # Initialize device
@@ -458,10 +459,10 @@ def main():
     scaler = torch.cuda.amp.GradScaler(enabled=(device.type == "cuda"))
 
     # Config Checkpoint paths
-    checkpoint_path = f"models/checkpoint_{args.mode}.pth"
-    best_model_path = f"models/leaf_cnn_best_{args.mode}.pth"
+    checkpoint_path = f"models/checkpoints/checkpoint_{args.mode}.pth"
+    best_model_path = f"models/checkpoints/leaf_cnn_best_{args.mode}.pth"
     # Legacy path support
-    legacy_best_path = "models/leaf_cnn_best.pth"
+    legacy_best_path = "models/checkpoints/leaf_cnn_best.pth"
 
     # Training state variables
     start_epoch = 1

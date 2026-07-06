@@ -1003,7 +1003,7 @@ Checkpoint location:
 
 ```text
 
-models/leaf\_cnn\_epoch5.pth
+models/checkpoints/leaf\_cnn\_epoch5.pth
 
 ```
 
@@ -1039,7 +1039,7 @@ Completed the following project files:
 
 \- `src/train.py`
 
-\- `models/leaf\_cnn\_epoch5.pth`
+\- models/checkpoints/leaf\_cnn\_epoch5.pth
 
 \- Training loss logs using `tqdm`
 
@@ -1217,7 +1217,7 @@ Implemented:
 Checkpoint Files
 
 ```text
-models/
+models/checkpoints/
 ├── leaf_cnn_best.pth
 └── latest_checkpoint.pth
 ```
@@ -1258,7 +1258,7 @@ The graph compares:
 Generated Files
 
 ```text
-models/
+models/checkpoints/
 ├── leaf_cnn_best.pth
 ├── latest_checkpoint.pth
 
@@ -1544,7 +1544,7 @@ Fine-tune the pre-trained ResNet18 model using a two-phase transfer learning sch
   - **GPU Execution Time**: Total training finished in `1745.21 seconds` on an NVIDIA RTX 3050 GPU using AMP (~4.8 minutes/epoch with sequential CPU image decoding).
   - **CPU Projection**: Training without CUDA acceleration on standard CPUs projection is ~50 minutes/epoch, exceeding 5 hours for 6 epochs.
 - **Deliverables Saved**:
-  - Checkpoint: `models/resnet18_leaf_best.pth` (includes state dict, best epoch, final accuracy, and class names).
+  - Checkpoint: `models/checkpoints/resnet18_leaf_best.pth` (includes state dict, best epoch, final accuracy, and class names).
   - Class index mapping: `models/class_names.json`.
   - Comparative log: `reports/resnet18_vs_scratch_cnn.txt` and `reports/classification_report_resnet.txt`.
 

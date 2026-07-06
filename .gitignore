@@ -23,6 +23,8 @@ data/raw/
 data/processed/
 
 # Models
-models/
+models/**/*.pth
+models/**/*.pt
+models/checkpoints/
 # tensor data
 runs/

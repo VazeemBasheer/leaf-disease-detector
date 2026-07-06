@@ -48,6 +48,7 @@ def parse_args():
 def main():
     args = parse_args()
     os.makedirs("models", exist_ok=True)
+    os.makedirs("models/checkpoints", exist_ok=True)
     os.makedirs("reports", exist_ok=True)
 
     # 1. Device Setup
@@ -232,8 +233,8 @@ def main():
                 "class_to_idx": {name: idx for idx, name in enumerate(CLASS_NAMES)},
                 "model_description": "ResNet18 Fine-Tuned for Leaf Disease Classification"
             }
-            torch.save(checkpoint_data, "models/resnet18_leaf_best.pth")
-            print(f"       >>> Validation accuracy improved. Saved best model to models/resnet18_leaf_best.pth")
+            torch.save(checkpoint_data, "models/checkpoints/resnet18_leaf_best.pth")
+            print(f"       >>> Validation accuracy improved. Saved best model to models/checkpoints/resnet18_leaf_best.pth")
 
         # Early stopping check (based on loss improvement in Phase 2)
         if epoch > args.phase1_epochs:
