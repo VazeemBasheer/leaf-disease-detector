@@ -1,9 +1,26 @@
-              precision    recall  f1-score   support
+==================================================
+16-CLASS FINE-TUNED CNN CLASSIFICATION REPORT
+==================================================
 
-       apple     0.9781    0.9843    0.9812       636
-      pepper     0.9346    0.9898    0.9614       491
-      tomato     0.9975    0.9884    0.9930      3635
+                                               precision    recall  f1-score   support
 
-    accuracy                         0.9880      4762
-   macro avg     0.9701    0.9875    0.9785      4762
-weighted avg     0.9884    0.9880    0.9881      4762
+                           Apple___Apple_scab     0.9858    0.9929    0.9893       140
+                            Apple___Black_rot     1.0000    1.0000    1.0000       121
+                     Apple___Cedar_apple_rust     1.0000    1.0000    1.0000        60
+                              Apple___healthy     0.9968    0.9968    0.9968       315
+                        Pepper_Bacterial_spot     1.0000    1.0000    1.0000       209
+                               Pepper_healthy     1.0000    1.0000    1.0000       282
+                      Tomato___Bacterial_spot     0.9881    0.9976    0.9928       417
+                        Tomato___Early_blight     0.9944    0.9521    0.9728       188
+                             Tomato___healthy     1.0000    1.0000    1.0000       348
+                         Tomato___Late_blight     0.9767    0.9895    0.9831       381
+                           Tomato___Leaf_Mold     0.9858    1.0000    0.9929       209
+                  Tomato___Septoria_leaf_spot     0.9971    0.9748    0.9858       357
+Tomato___Spider_mites Two-spotted_spider_mite     0.9827    1.0000    0.9913       284
+                         Tomato___Target_Spot     1.0000    0.9868    0.9933       302
+                 Tomato___Tomato_mosaic_virus     1.0000    0.9765    0.9881        85
+       Tomato___Tomato_Yellow_Leaf_Curl_Virus     0.9963    1.0000    0.9981      1064
+
+                                     accuracy                         0.9935      4762
+                                    macro avg     0.9940    0.9917    0.9928      4762
+                                 weighted avg     0.9935    0.9935    0.9935      4762

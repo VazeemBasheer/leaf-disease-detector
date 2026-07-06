@@ -1,0 +1,48 @@
+{
+    "model_type": "LeafDiseaseCNN",
+    "description": "Leaf disease classifier (healthy vs diseased collapse)",
+    "checkpoint_path": "models/checkpoints/leafcnn_20260628_acc_0.992.pth",
+    "num_classes": 16,
+    "input_size": [
+        3,
+        224,
+        224
+    ],
+    "class_to_idx": {
+        "Apple___Apple_scab": 0,
+        "Apple___Black_rot": 1,
+        "Apple___Cedar_apple_rust": 2,
+        "Apple___healthy": 3,
+        "Pepper_Bacterial_spot": 4,
+        "Pepper_healthy": 5,
+        "Tomato___Bacterial_spot": 6,
+        "Tomato___Early_blight": 7,
+        "Tomato___healthy": 8,
+        "Tomato___Late_blight": 9,
+        "Tomato___Leaf_Mold": 10,
+        "Tomato___Septoria_leaf_spot": 11,
+        "Tomato___Spider_mites Two-spotted_spider_mite": 12,
+        "Tomato___Target_Spot": 13,
+        "Tomato___Tomato_mosaic_virus": 14,
+        "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 15
+    },
+    "healthy_classes": [
+        "Apple___healthy",
+        "Pepper_healthy",
+        "Tomato___healthy"
+    ],
+    "healthy_class_indices": [
+        3,
+        5,
+        8
+    ],
+    "operating_threshold": 0.35,
+    "expected_metrics": {
+        "validation_recall": 0.9997380141472361,
+        "validation_precision": 0.9994761655316919
+    },
+    "sla_bounds": {
+        "min_recall": 0.95,
+        "min_precision": 0.8
+    }
+}

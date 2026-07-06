@@ -1,0 +1,1 @@
+Validation Accuracy on 16 classes: 2.98% (Correct: 142/4762)
