@@ -1679,6 +1679,169 @@ uvicorn app.main:app --reload
 - **Interactive OpenAPI Documentation**: `GET http://127.0.0.1:8000/docs`
 - **Predict Request**: Send a `POST http://127.0.0.1:8000/predict` using `multipart/form-data` with key `file` referencing the leaf image file.
 
+---
+
+# Day 14 – Leaf Quality API Validation, Resizing, and Testing
+
+## Objective
+
+Secure and validate the `POST /predict` endpoint in the leaf disease REST API. Enforce file constraints (MIME type limits, max file upload boundaries), establish server-side resizing to conserve runtime memory under heavy photos, introduce custom monitoring latency headers, and implement client verification tests.
+
+---
+
+## Tasks Completed
+
+- **Request Security & Boundaries**:
+  - Validated MIME type to allow only `image/jpeg` or `image/png` (returning status `415 Unsupported Media Type` if invalid).
+  - Enforced max file size restriction at **5MB** (returning status `413 Payload Too Large` if exceeded).
+  - Caught decoding failures early returning `400 Bad Request` on corrupted file payloads.
+  - Wrapped model predictions to prevent raw stack trace exposure, swallowing execution errors into generic `500 Internal Server Error` status returns.
+- **Server-Side Resizing**:
+  - Implemented server-side PIL image thumbnailing (`image.thumbnail((1024, 1024))`) on dimensions exceeding 1024px to handle DSLR/polyhouse camera photos gracefully.
+- **Monitoring Headers**:
+  - Injected `X-Inference-Ms` containing the exact inference runtime delta in milliseconds into the response headers.
+- **Verification Tests**:
+  - Implemented [manual_predict.py](file:///c:/Users/vazeem/INTERNSHIP/leaf-disease-detector/tests/manual_predict.py) which queries health states, tests healthy/diseased uploads, checks mime-type rejections, tests corrupted file handling, checks latency headers, and saves results.
+
+---
+
+## API Execution & Verification
+
+### Run the API Validation Suite
+With the FastAPI uvicorn server running, run:
+```powershell
+python tests/manual_predict.py
+```
+
+### Response Codes Mapping
+- **200 OK**: Classification success; payload matches Pydantic `PredictionResponse`.
+- **400 Bad Request**: Invalid or corrupted image payload.
+- **413 Payload Too Large**: Upload exceeds 5MB size limit.
+- **415 Unsupported Media Type**: Unsupported file extension/MIME type.
+- **500 Internal Server Error**: Internal execution engine exception.
+
+---
+
+# Day 16 – Leaf Quality API Multi-Model Prediction Reporting
+
+We verified predictions with both the 3-class Species model and 16-class Disease model, validating accurate labeling of Apple Black Rot (Black Mold).
+
+## 1. 3-Class Species Model Validation (`models/resnet18_leaf_best.pth`)
+- **Action**: Test `samples/apple_healthy.jpg`
+- **Command**:
+  ```powershell
+  python tests/test_single.py samples/apple_healthy.jpg
+  ```
+- **Result**:
+  ```json
+  Status Code: 200
+  Latency: 24.94 ms
+  {
+    "predicted_class": "apple",
+    "confidence": 0.9999861717224121,
+    "is_diseased": false,
+    "probabilities": {
+      "apple": 0.9999861717224121,
+      "pepper": 1.7276173025493335e-07,
+      "tomato": 1.3688322724192403e-05
+    }
+  }
+  ```
+
+## 2. 16-Class Disease Model Validation (`models/checkpoints/leafcnn_20260628_acc_0.992.pth`)
+- **Action**: Test Apple Black Rot dataset leaf (`C:\Users\vazeem\INTERNSHIP\leaf-disease-detector\data\processed\apple\Apple___Black_rot\1ce9343f-125e-4abb-9cd4-fddf761504da___JR_FrgE.S 3096.JPG`)
+- **Command**:
+  ```powershell
+  curl.exe -X POST "http://127.0.0.1:8000/predict" -F "file=@C:\Users\vazeem\INTERNSHIP\leaf-disease-detector\data\processed\apple\Apple___Black_rot\1ce9343f-125e-4abb-9cd4-fddf761504da___JR_FrgE.S 3096.JPG;type=image/jpeg"
+  ```
+- **Result**:
+  ```json
+  {
+    "predicted_class": "Apple___Black_rot",
+    "confidence": 0.9999966621398926,
+    "is_diseased": true,
+    "probabilities": {
+      "Apple___Apple_scab": 3.733508802956952e-15,
+      "Apple___Black_rot": 0.9999966621398926,
+      "Apple___Cedar_apple_rust": 3.1256388393885e-34,
+      "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 2.24268273e-32
+    }
+  }
+  ```
+
+---
+
+# Day 17 – Leaf Quality API Robustness, Startup Warmup, and Structured Error Handling
+
+We implemented API hardening mechanisms for production deployment:
+- **Startup Warmup**: Model parameters are loaded during startup lifecycles and warmed up with a dummy forward pass of `torch.randn(1, 3, 224, 224)` preventing a performance spike on the first prediction request.
+- **Fail-Safe Startup Verification**: If model checkpoint weights are missing on disk, clear error logs are emitted. The server starts up healthy in an offline state rather than crashing.
+- **Structured JSON Exception Mappings**: Custom exceptions returning formatted error outputs (`{"detail": "...", "error_code": "..."}`) which are registered and documented in Swagger OpenAPI spec.
+- **Service Dependency Boundary**: All incoming requests to `/predict` are intercepted by the `verify_model_loaded` dependency, responding with `503 Service Unavailable` if the network model is offline.
+- **Structured Stdout Logging**: Substituted all print calls with python `logging` standard streaming to stdout for seamless Docker aggregation.
+
+## API Robustness Test Report
+
+Running the robust test suite:
+```powershell
+python tests/manual_predict.py
+```
+
+### 1. Model Offline Check (503 Service Unavailable)
+- **Trigger**: Change `.env` config `MODEL_PATH` to a non-existent file path:
+  ```ini
+  MODEL_PATH=models/checkpoints/non_existent_weights_file.pth
+  ```
+- **Health Response**:
+  ```json
+  {
+    "status": "ok",
+    "model_loaded": false
+  }
+  ```
+- **Predict Response**:
+  ```json
+  {
+    "detail": "Inference engine is offline: model checkpoint failed to load on server startup.",
+    "error_code": "MODEL_OFFLINE"
+  }
+  ```
+
+### 2. Invalid Media Format (415 Unsupported Media Type)
+- **Trigger**: Request prediction with a text payload.
+- **Response**:
+  ```json
+  {
+    "detail": "Unsupported media type: Only image/jpeg and image/png are supported.",
+    "error_code": "UNSUPPORTED_MEDIA_TYPE"
+  }
+  ```
+
+### 3. File Decode Corrupted (400 Bad Request)
+- **Trigger**: Request prediction with a corrupted/empty byte string file.
+- **Response**:
+  ```json
+  {
+    "detail": "Invalid image file: Failed to decode image payload.",
+    "error_code": "INVALID_IMAGE_FILE"
+  }
+  ```
+
+---
+
+# Day 18 – Dockerization Fundamentals, Base Image Sizes, and Minimal Dockerfile Setup
+
+We drafted our deployment strategy for the Zelbytes polyhouse edge gateways:
+- **Reproducibility with Slim Image Footprints**: Created our minimal `Dockerfile` targeting `python:3.11-slim` to minimize attack surface and storage footprint (reducing images from ~1.0GB down to ~120MB). Alpine is avoided due to long NumPy and PyTorch build-from-source compilation times, resulting from compatibility variances between `musl-libc` and standard `glibc`.
+- **Ignore Context Control**: Configured `.dockerignore` targeting development caches, `.git`, `venv`, and `data/` directories to prevent context bloat during image builds.
+- **Architectural Design Layout**: Set up request-routing schematics mapping client to PyTorch engines and mounting checkpoints instead of baking files.
+
+Detailed Docker concepts and full comparisons are documented under [docs/docker_fundamentals.md](file:///c:/Users/vazeem/INTERNSHIP/leaf-disease-detector/docs/docker_fundamentals.md).
+
+
+
+
+
 
 
 

@@ -10,3 +10,8 @@ class PredictionResponse(BaseModel):
     confidence: float
     is_diseased: bool
     probabilities: Dict[str, float]
+
+class ErrorResponse(BaseModel):
+    detail: str
+    error_code: str
+
